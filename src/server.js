@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import { Server } from "socket.io";
 import http from 'http';
+import cors from 'cors';
 import productosRouter from './routes/ProductosRoutes.js';
 import carritosRouter from './routes/CarritosRoutes.js';
 const app = express();
@@ -12,12 +13,24 @@ const messages = [];
 const httpServer = http.createServer(app);
 
 /** Crear nuevo servidor websocket */
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+         }
+});
+
 
 //** Middlewares */
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors(
+    {
+       origin: 'http://localhost:3000',
+         methods: 'GET, POST, PUT, DELETE, OPTIONS',
+    }
+));
 
 
 /** Routes */
@@ -38,10 +51,10 @@ io.on('connection', (socket) => {
     /** on para escuchar
      *  emit para enviar
      */
-    socket.on('set-name', (name) => {
-        console.log('set-name', name);
-        socket.emit('user-connected', name);
-        socket.broadcast.emit('user-connected', name);
+    socket.on('set-user', (user) => {
+        console.log('Current User Data', user);
+       // socket.emit('user-connected', user);
+       // socket.broadcast.emit('user-connected', user);
     });
   
    /** El servidor recibe los nuevos mensajes y los re-envia los */
@@ -52,8 +65,8 @@ io.on('connection', (socket) => {
     });
 
    // socket.emit('messages', messages);
-    socket.on('disconnect', () => {
-        console.log('User was disconnected');
+    socket.on('disconnect', (user) => {
+        console.log('User disconnected:', user);
     });
    
 }
