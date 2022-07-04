@@ -9,11 +9,14 @@ import productosRouter from './routes/ProductosRoutes.js';
 import carritosRouter from './routes/CarritosRoutes.js';
 const app = express();
 const PORT = 8080;
-const chat = {
-    id: '30950',
-    nombre: 'Canal de chat - Comisión 30950',
-    mensajes: [] // contiene un array de mensajes
-}
+// const chat = {
+//     id: '30950',
+//     nombre: 'Canal de chat - Comisión 30950',
+//     mensajes: [] // contiene un array de mensajes
+// }
+
+const mensajes = [];
+
 
 /** Tenemos dos servidores:  httpServer y ioServer */
 const httpServer = http.createServer(app);
@@ -48,32 +51,32 @@ function onInit() {
 }
 /** ★━━━━━━━━━━━★ NORMALIZR ★━━━━━━━━━━━★*/
 
-function print(obj){
-    console.log(inspect(obj, { depth: null }));
-}
+// function print(obj){
+//     console.log(inspect(obj, { depth: null }));
+// }
 
 /** Definir schema autor */
 
-const autorSchema = new schema.Entity('autores');
+//const autorSchema = new schema.Entity('autores');
 
 /** Definir schema mensaje */
 
-const mensajeSchema = new schema.Entity('mensajes', {
-  id: { type: String },
-  autor: autorSchema,
-  texto: '',
-  timestamp: { type: Number }
-});
+// const mensajeSchema = new schema.Entity('mensajes', {
+//   id: { type: String },
+//   autor: autorSchema,
+//   texto: '',
+//   timestamp: { type: Number }
+// });
 
-const chatSchema = new schema.Entity('chats', {
-  id: { type: String },
-  mensajes: [mensajeSchema]
-});
+// const chatSchema = new schema.Entity('chats', {
+//   id: { type: String },
+//   mensajes: [mensajeSchema]
+// });
 
 
-const normalizeChat = (chat) => {
-    return normalize(chat, chatSchema);
-}
+// const normalizeChat = (chat) => {
+//     return normalize(chat, chatSchema);
+// }
 
 /** ★━━━━━━━━━━━★ WEBSOCKET ★━━━━━━━━━━━★*/
 
@@ -94,11 +97,12 @@ io.on('connection', (socket) => {
    /** El servidor recibe los nuevos mensajes y los re-envia los */
     socket.on('new-message', (message) => {
         console.log('New Message', message);
-        chat.mensajes.push(message);
-        const chatNormalized =  normalizeChat(chat);
-        print(chatNormalized);
-        socket.emit('all-messages', chatNormalized);
-        socket.broadcast.emit('all-messages', chat);
+        // chat.mensajes.push(message);
+        // const chatNormalized =  normalizeChat(chat);
+        // print(chatNormalized);
+        mensajes.push(message);
+        socket.emit('all-messages', mensajes);
+        socket.broadcast.emit('all-messages',mensajes);
     });
 
    // socket.emit('messages', messages);
