@@ -54,3 +54,9 @@
 ```
  npm i cors
 ```
+
+- Normalización
+
+```
+npm i normalizr
+```
